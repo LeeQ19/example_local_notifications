@@ -98,15 +98,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   Future<void> _registerMessage({
-    required int seconds,
-    required message,
+    required int id,
+    required String message,
   }) async {
-    final now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate = tz.TZDateTime.now(tz.local).add(Duration(seconds: seconds));
+    tz.TZDateTime scheduledDate = tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5));
 
     await _flutterLocalNotificationsPlugin.zonedSchedule(
-      now.hashCode,
-      'flutter_local_notifications ${now.hashCode}',
+      id,
+      'Show Notification',
       message,
       scheduledDate,
       NotificationDetails(
@@ -135,19 +134,35 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       appBar: AppBar(
         title: const Text('Local Notifications'),
       ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () async {
-            // await _cancelNotification();
-            await _requestPermissions();
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ElevatedButton(
+            onPressed: () async {
+              // await _cancelNotification();
+              await _requestPermissions();
 
-            await _registerMessage(
-              seconds: 5,
-              message: 'Hello, world!',
-            );
-          },
-          child: const Text('Show Notification'),
-        ),
+              await _registerMessage(
+                id: 1,
+                message: 'This notification occured by #1',
+              );
+            },
+            child: const Text('Show Notification #1'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              // await _cancelNotification();
+              await _requestPermissions();
+
+              await _registerMessage(
+                id: 2,
+                message: 'This notification occured by #2',
+              );
+            },
+            child: const Text('Show Notification #2'),
+          ),
+        ],
       ),
     );
   }
