@@ -7,6 +7,8 @@ import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
+import 'package:flutter_local_notifications_example/notification_service.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -99,37 +101,66 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   Future<void> _registerMessage({
     required int id,
+    required String group,
     required String message,
   }) async {
-    tz.TZDateTime scheduledDate = tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5));
+    const String groupKey = 'com.android.example.WORK_EMAIL';
+    const String groupChannelId = 'grouped channel id';
+    const String groupChannelName = 'grouped channel name';
+    const String groupChannelDescription = 'grouped channel description';
 
-    await _flutterLocalNotificationsPlugin.zonedSchedule(
+    const AndroidNotificationDetails notificationAndroidSpecifics = AndroidNotificationDetails(
+      groupChannelId,
+      groupChannelName,
+      channelDescription: groupChannelDescription,
+      icon: 'ic_notification',
+      importance: Importance.max,
+      priority: Priority.high,
+      groupKey: groupKey,
+      autoCancel: true,
+      onlyAlertOnce: false,
+    );
+    const DarwinNotificationDetails notificationIOSSpecifics = DarwinNotificationDetails(
+      badgeNumber: 1,
+    );
+    const NotificationDetails notificationPlatformSpecifics = NotificationDetails(
+      android: notificationAndroidSpecifics,
+      iOS: notificationIOSSpecifics,
+    );
+
+    await _flutterLocalNotificationsPlugin.show(
       id,
-      'Show Notification',
+      'Show Notification: $group',
       message,
-      scheduledDate,
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          'channel id',
-          'channel name',
-          importance: Importance.max,
-          priority: Priority.high,
-          ongoing: true,
-          styleInformation: BigTextStyleInformation(message),
-          icon: 'ic_notification',
-        ),
-        iOS: const DarwinNotificationDetails(
-          badgeNumber: 1,
-        ),
-      ),
-      androidAllowWhileIdle: true,
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time,
+      notificationPlatformSpecifics,
+    );
+
+    const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
+      groupChannelId,
+      groupChannelName,
+      channelDescription: groupChannelDescription,
+      groupKey: groupKey,
+      setAsGroupSummary: true,
+      onlyAlertOnce: true,
+    );
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+      iOS: notificationIOSSpecifics,
+    );
+
+    await _flutterLocalNotificationsPlugin.show(
+      0,
+      '',
+      '',
+      platformChannelSpecifics,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    // NotificationService notification = NotificationService();
+    // _cancelNotification();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Local Notifications'),
@@ -140,11 +171,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         children: [
           ElevatedButton(
             onPressed: () async {
-              // await _cancelNotification();
               await _requestPermissions();
-
               await _registerMessage(
-                id: 1,
+                id: tz.TZDateTime.now(tz.local).hashCode,
+                group: 'first',
                 message: 'This notification occured by #1',
               );
             },
@@ -152,11 +182,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           ),
           ElevatedButton(
             onPressed: () async {
-              // await _cancelNotification();
               await _requestPermissions();
-
               await _registerMessage(
-                id: 2,
+                id: tz.TZDateTime.now(tz.local).hashCode,
+                group: 'second',
                 message: 'This notification occured by #2',
               );
             },
