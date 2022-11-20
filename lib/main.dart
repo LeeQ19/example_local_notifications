@@ -7,7 +7,7 @@ import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
-import 'package:flutter_local_notifications_example/notification_service.dart';
+import 'package:example_local_notifications/notification_service.dart';
 
 void main() {
   runApp(const MyApp());

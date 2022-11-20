@@ -1,4 +1,4 @@
-# flutter_local_notifications_example
+# example_local_notifications
 
 A new Flutter project.
 
